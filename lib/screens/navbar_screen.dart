@@ -3,19 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:dash_kit_core/dash_kit_core.dart';
 import 'package:flutter/material.dart';
 import 'package:task_requirements/action/update_navbar_action.dart';
+import 'package:task_requirements/screens/news_screen.dart';
 import 'package:task_requirements/state/navbar/navbar_state.dart';
+import 'package:task_requirements/path_file.dart';
 
-class NavbarScreen extends StatelessWidget {
+class NavbarScreen extends StatefulWidget {
   const NavbarScreen({super.key});
 
+  @override
+  State<NavbarScreen> createState() => _NavbarScreenState();
+}
+
+class _NavbarScreenState extends State<NavbarScreen> {
+  late Store<NavbarState> store;
   final List<Widget> _screens = const [
     // Tab 0
-    Center(
-      child: Text(
-        'Home Screen Content',
-        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-      ),
-    ),
+    NewsScreen(),
     // Tab 1
     Center(
       child: Text(
@@ -26,34 +29,43 @@ class NavbarScreen extends StatelessWidget {
   ];
 
   @override
+  void initState() {
+    store = Store<NavbarState>(initialState: NavbarState.initial());
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     // 1. Use StoreConnector, specialized for NavbarState
-    return StoreConnector<NavbarState, _NavbarViewModel>(
-      // 2. Convert NavbarState to a simple ViewModel
-      converter: (store) => _NavbarViewModel.fromStore(store),
+    return StoreProvider<NavbarState>(
+      store: store,
+      child: StoreConnector<NavbarState, _NavbarViewModel>(
+        // 2. Convert NavbarState to a simple ViewModel
+        converter: (store) => _NavbarViewModel.fromStore(store),
 
-      builder: (context, vm) {
-        return Scaffold(
-          // Display the screen corresponding to the current index from the state
-          body: _screens[vm.currentIndex],
+        builder: (context, vm) {
+          return Scaffold(
+            // Display the screen corresponding to the current index from the state
+            body: _screens[vm.currentIndex],
 
-          bottomNavigationBar: BottomNavigationBar(
-            // Read the current index from the ViewModel/State
-            currentIndex: vm.currentIndex,
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-              BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
-            ],
+            bottomNavigationBar: BottomNavigationBar(
+              // Read the current index from the ViewModel/State
+              currentIndex: vm.currentIndex,
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(icon: Icon(Icons.home), label: 'News Screen'),
+                BottomNavigationBarItem(icon: Icon(Icons.description), label: 'News Details'),
+              ],
 
-            // On tap, dispatch the action to update the state
-            onTap: (index) {
-              vm.dispatch(UpdateNavbarAction(newIndex: index));
-            },
-            selectedItemColor: Colors.deepPurple,
-            unselectedItemColor: Colors.grey,
-          ),
-        );
-      },
+              // On tap, dispatch the action to update the state
+              onTap: (index) {
+                vm.dispatch(UpdateNavbarAction(newIndex: index));
+              },
+              selectedItemColor: Colors.deepPurple,
+              unselectedItemColor: Colors.grey,
+            ),
+          );
+        },
+      ),
     );
   }
 }
