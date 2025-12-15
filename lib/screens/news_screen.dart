@@ -1,10 +1,10 @@
 import 'package:dash_kit_core/dash_kit_core.dart';
 import 'package:flutter/material.dart';
-import 'package:task_requirements/action/load_articles_action.dart';
+import 'package:task_requirements/action/news/load_articles_action.dart';
 import 'package:task_requirements/core/service/api/api_service.dart';
 import 'package:task_requirements/core/service/firebase_service.dart';
 import 'package:task_requirements/core/service/notification/notification_service.dart';
-import 'package:task_requirements/state/news_state.dart';
+import 'package:task_requirements/state/news/news_state.dart';
 import 'package:task_requirements/widgets/news_card.dart';
 import 'package:async_redux/async_redux.dart';
 import '../core/models/alticle.dart';
@@ -17,12 +17,12 @@ class NewsScreen extends StatefulWidget {
 }
 
 class _NewsScreenState extends State<NewsScreen> {
-  late Store<AppState> store;
+  late Store<NewsState> store;
   final apiService = ApiService();
 
   @override
   void initState() {
-    store = Store<AppState>(initialState: AppState.initial());
+    store = Store<NewsState>(initialState: NewsState.initial());
     store.dispatch(LoadArticlesAction(apiService));
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // newsProvider.loadArticles();
@@ -41,7 +41,7 @@ class _NewsScreenState extends State<NewsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return StoreProvider<AppState>(
+    return StoreProvider<NewsState>(
       store: store,
       child: Scaffold(
         appBar: AppBar(
@@ -55,7 +55,7 @@ class _NewsScreenState extends State<NewsScreen> {
             ),
           ],
         ),
-        body: StoreConnector<AppState, _NewsScreenViewModel>(
+        body: StoreConnector<NewsState, _NewsScreenViewModel>(
           converter: (store) => _NewsScreenViewModel.fromStore(store),
           builder: (context, vm) {
             if (vm.isLoading) {
@@ -84,7 +84,7 @@ class _NewsScreenViewModel {
 
   _NewsScreenViewModel({required this.articles, required this.isLoading});
 
-  factory _NewsScreenViewModel.fromStore(Store<AppState> store) {
+  factory _NewsScreenViewModel.fromStore(Store<NewsState> store) {
     final loadingState = store.state.getOperationState(Operation.loadArticles);
 
     return _NewsScreenViewModel(

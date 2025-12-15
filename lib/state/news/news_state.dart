@@ -1,7 +1,6 @@
 import 'package:built_value/built_value.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:dash_kit_core/dash_kit_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:task_requirements/core/models/alticle.dart';
 
 part 'news_state.g.dart';
@@ -9,15 +8,15 @@ part 'news_state.g.dart';
 enum Operation { loadArticles }
 
 // The implementation uses BuiltValue syntax
-abstract class AppState implements Built<AppState, AppStateBuilder>, GlobalState {
+abstract class NewsState implements Built<NewsState, NewsStateBuilder>, GlobalState {
   // BuiltValue boilerplate
-  factory AppState([void Function(AppStateBuilder) updates]) = _$AppState;
+  factory NewsState([void Function(NewsStateBuilder) updates]) = _$NewsState;
 
-  AppState._();
+  NewsState._();
 
   // Initial State: Data fields should have default values
-  factory AppState.initial() {
-    return AppState(
+  factory NewsState.initial() {
+    return NewsState(
       (b) => b
         ..articles.replace([]) // Initial empty list
         ..operationsState = BuiltMap<Object, OperationState>().toBuilder(),

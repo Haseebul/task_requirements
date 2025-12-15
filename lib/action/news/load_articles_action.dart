@@ -1,9 +1,9 @@
 
 import 'package:dash_kit_core/dash_kit_core.dart';
 import 'package:task_requirements/core/service/api/api_service.dart';
-import 'package:task_requirements/state/news_state.dart';
+import 'package:task_requirements/state/news/news_state.dart';
 
-class LoadArticlesAction extends Action<AppState> {
+class LoadArticlesAction extends Action<NewsState> {
   final ApiService _apiService;
 
   LoadArticlesAction(this._apiService);
@@ -13,7 +13,7 @@ class LoadArticlesAction extends Action<AppState> {
   Operation get operationKey => Operation.loadArticles;
 
   @override
-  Future<AppState> reduce() async {
+  Future<NewsState> reduce() async {
     final fetchedArticles = await _apiService.fetchTopHeadlines();
 
     // The reduce function returns the new state
