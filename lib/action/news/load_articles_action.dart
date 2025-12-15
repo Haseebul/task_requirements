@@ -14,7 +14,7 @@ class LoadArticlesAction extends Action<NewsState> {
 
   @override
   Future<NewsState> reduce() async {
-    final fetchedArticles = await _apiService.fetchTopHeadlines();
+    final fetchedArticles = await _apiService.fetchProducts();
 
     // The reduce function returns the new state
     return state.rebuild((b) => b.articles.replace(fetchedArticles ?? []));
