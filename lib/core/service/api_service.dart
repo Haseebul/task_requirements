@@ -6,12 +6,16 @@ import 'package:task_requirements/core/models/product.dart';
 class ApiService {
   String baseUrl = "https://api.escuelajs.co/api/v1/products";
 
-  Future<List<Product>?> fetchProducts() async {
-    final response = await http.get(Uri.parse(baseUrl));
+  Future<List<Product>?> fetchProducts({int page = 1, int limit = 20}) async {
+    final url = Uri.parse('$baseUrl?offset=$page&limit=$limit');
+
+    final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      return (data as List).map((articleJson) => Product.fromJson(articleJson)).toList();
+      return (data as List)
+          .map((productJson) => Product.fromJson(productJson))
+          .toList();
     } else {
       return null;
     }
@@ -56,10 +60,12 @@ class ApiService {
       headers: {'Content-Type': 'application/json'},
       body: body,
     );
+    debugPrint("==========${response.body}");
 
     if (response.statusCode == 201) {
       // 201 Created is the expected response
       final data = json.decode(response.body);
+      debugPrint("create product data: $data");
       return Product.fromJson(data);
     } else {
       debugPrint(

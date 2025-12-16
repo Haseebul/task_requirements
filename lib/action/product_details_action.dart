@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart' hide Action;
 import 'package:task_requirements/core/service/product_service.dart';
 import 'package:task_requirements/path_file.dart';
+import 'package:task_requirements/state/app_state.dart';
 import 'package:task_requirements/state/product_details/product_details_state.dart';
 
 import '../core/service/api_service.dart';
 
-class ProductDetailsAction extends Action<ProductDetailsState> {
+class ProductDetailsAction extends Action<AppState> {
   final ApiService _apiService;
 
   ProductDetailsAction(this._apiService);
 
   @override
-  Future<ProductDetailsState> reduce() async {
+  Future<AppState> reduce() async {
     int? id = ProductService.instance.selectedProductId;
 
     if (id == null) {
@@ -20,7 +21,7 @@ class ProductDetailsAction extends Action<ProductDetailsState> {
     final res = await _apiService.fetchProduct(id);
 
     return state.rebuild((data) {
-      return data.product = res;
+      return data.productDetailsState.product = res;
     });
   }
 }

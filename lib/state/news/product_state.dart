@@ -7,35 +7,41 @@ part 'product_state.g.dart';
 
 enum ProductOperation { loadProducts, deleteProduct, createProduct }
 
-abstract class ProductState implements Built<ProductState, ProductStateBuilder>, GlobalState {
-  factory ProductState([void Function(ProductStateBuilder) updates]) = _$ProductState;
+abstract class ProductState
+    implements Built<ProductState, ProductStateBuilder>, GlobalState {
+  factory ProductState([void Function(ProductStateBuilder) updates]) =
+      _$ProductState;
 
   ProductState._();
 
-  // Initial State: Data fields should have default values
   factory ProductState.initial() {
     return ProductState(
       (b) => b
-        ..articles.replace([]) // Initial empty list
-        ..operationsState = BuiltMap<Object, OperationState>().toBuilder(),
+        ..articles.replace([])
+        ..operationsState = BuiltMap<Object, OperationState>().toBuilder()
+        ..currentPage = 1
+        ..hasMore = true,
     );
   }
 
-  // --- APPLICATION DATA FIELDS ---
-  BuiltList<Product> get articles; // Use BuiltList for immutable collections
-
-  // --- GLOBAL STATE REQUIREMENTS ---
+  BuiltList<Product> get articles;
+  int get currentPage;
+  bool get hasMore;
   @override
   BuiltMap<Object, OperationState> get operationsState;
 
-  // Implementation required by GlobalState (uses BuiltValue's rebuild)
   @override
-  T updateOperation<T extends GlobalState>(Object? operationKey, OperationState operationState) {
+  T updateOperation<T extends GlobalState>(
+    Object? operationKey,
+    OperationState operationState,
+  ) {
     if (operationKey == null) {
       return this as T;
     }
 
-    final GlobalState newState = rebuild((s) => s.operationsState[operationKey] = operationState);
+    final GlobalState newState = rebuild(
+      (s) => s.operationsState[operationKey] = operationState,
+    );
     return newState as T;
   }
 

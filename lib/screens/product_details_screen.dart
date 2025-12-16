@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:task_requirements/action/product_details_action.dart';
+import 'package:task_requirements/action/update_navbar_action.dart';
 import 'package:task_requirements/core/models/product.dart';
 import 'package:task_requirements/core/service/api_service.dart';
+import 'package:task_requirements/core/service_locator.dart';
 import 'package:task_requirements/path_file.dart';
+import 'package:task_requirements/state/app_state.dart';
 import 'package:task_requirements/state/product_details/product_details_state.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -13,11 +16,10 @@ class ProductDetailsScreen extends StatefulWidget {
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
-  late Store<ProductDetailsState> store;
+  late Store<AppState> store = sl<Store<AppState>>();
   final apiService = ApiService();
   @override
   void initState() {
-    store = Store<ProductDetailsState>(initialState: ProductDetailsState.initial());
     store.dispatch(ProductDetailsAction(apiService));
     super.initState();
   }
@@ -25,14 +27,35 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    return StoreProvider(
-      store: store,
-      child: StoreConnector<ProductDetailsState, ProductDetailsViewModel>(
-        converter: (store) => ProductDetailsViewModel.fromStore(store),
-        builder: (context, vm) {
-          return Column(
+    return StoreConnector<AppState, ProductDetailsViewModel>(
+      converter: (store) => ProductDetailsViewModel.fromStore(store),
+      builder: (context, vm) {
+        return Scaffold(
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: vm.currentIndex,
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Product Screen',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.description),
+                label: 'More',
+              ),
+            ],
+            onTap: (index) {
+              vm.dispatch(UpdateNavbarAction(newIndex: index));
+              Navigator.pop(context);
+            },
+            selectedItemColor: Colors.deepPurple,
+            unselectedItemColor: Colors.grey,
+          ),
+          body: Column(
             children: [
-              AppBar(title: Text(vm.product.title), backgroundColor: Colors.deepPurple),
+              AppBar(
+                title: Text(vm.product.title),
+                backgroundColor: Colors.deepPurple,
+              ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,7 +74,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               if (loadingProgress == null) return child;
                               return Center(
                                 child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes != null
+                                  value:
+                                      loadingProgress.expectedTotalBytes != null
                                       ? loadingProgress.cumulativeBytesLoaded /
                                             loadingProgress.expectedTotalBytes!
                                       : null,
@@ -59,7 +83,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               );
                             },
                             errorBuilder: (context, error, stackTrace) =>
-                                const Center(child: Icon(Icons.broken_image, size: 50)),
+                                const Center(
+                                  child: Icon(Icons.broken_image, size: 50),
+                                ),
                           );
                         },
                       ),
@@ -73,7 +99,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           Expanded(
                             child: Text(
                               vm.product.title,
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                           Text(
@@ -94,16 +123,26 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         children: [
                           const SizedBox(height: 8),
                           Chip(
-                            label: Text(vm.product.category.name, style: const TextStyle(color: Colors.white)),
+                            label: Text(
+                              vm.product.category.name,
+                              style: const TextStyle(color: Colors.white),
+                            ),
                             backgroundColor: Colors.deepPurple,
-                            avatar: const Icon(Icons.label, color: Colors.white70, size: 18),
+                            avatar: const Icon(
+                              Icons.label,
+                              color: Colors.white70,
+                              size: 18,
+                            ),
                           ),
                           const SizedBox(height: 16),
 
                           // --- 4. Description ---
                           const Text(
                             'Product Details',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ],
                       ),
@@ -112,29 +151,41 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12.0),
 
-                      child: Text(vm.product.description, style: const TextStyle(fontSize: 16, height: 1.5)),
+                      child: Text(
+                        vm.product.description,
+                        style: const TextStyle(fontSize: 16, height: 1.5),
+                      ),
                     ),
                     const SizedBox(height: 40),
                   ],
                 ),
               ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
 
 class ProductDetailsViewModel {
   final Product product;
+  final int currentIndex;
+  final Function(ReduxAction<AppState> action) dispatch;
 
-  // The dispatch function is generic over the state type: NavbarState
-  final Function(ReduxAction<ProductDetailsState> action) dispatch;
+  ProductDetailsViewModel({
+    required this.product,
+    required this.dispatch,
+    required this.currentIndex,
+  });
 
-  ProductDetailsViewModel({required this.product, required this.dispatch});
-
-  factory ProductDetailsViewModel.fromStore(Store<ProductDetailsState> store) {
-    return ProductDetailsViewModel(product: store.state.product, dispatch: store.dispatch);
+  factory ProductDetailsViewModel.fromStore(Store<AppState> store) {
+    return ProductDetailsViewModel(
+      product: store.state.productDetailsState.product,
+      currentIndex: store.state.navbarState.currentIndex,
+      dispatch: (ReduxAction<AppState> action) {
+        store.dispatch(action);
+      },
+    );
   }
 }

@@ -1,8 +1,9 @@
 import 'package:task_requirements/core/service/api_service.dart';
+import 'package:task_requirements/state/app_state.dart';
 import 'package:task_requirements/state/news/product_state.dart';
 import 'package:dash_kit_core/dash_kit_core.dart';
 
-class DeleteProductAction extends Action<ProductState> {
+class DeleteProductAction extends Action<AppState> {
   final ApiService _apiService;
   final int productId;
 
@@ -12,11 +13,13 @@ class DeleteProductAction extends Action<ProductState> {
   ProductOperation get operationKey => ProductOperation.deleteProduct;
 
   @override
-  Future<ProductState> reduce() async {
+  Future<AppState> reduce() async {
     final deletedProduct = await _apiService.deleteProduct(productId);
 
     if (deletedProduct) {
-      return state.rebuild((b) => b.articles.removeWhere((p) => p.id == productId));
+      return state.rebuild(
+        (b) => b.productState.articles.removeWhere((p) => p.id == productId),
+      );
     }
 
     return state;
