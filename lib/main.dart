@@ -19,6 +19,8 @@ void main() async {
   );
 }
 
+final GlobalKey<NavigatorState> productNavigatorKey =
+GlobalKey<NavigatorState>();
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -30,13 +32,15 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      initialRoute: '/',
+      home: NavbarScreen(),
+      // initialRoute: '/',
 
-      routes: {
-        '/': (context) => NavbarScreen(),
-        '/productDetails': (context) => ProductDetailsScreen(),
-        '/addProduct': (context) => AddProductScreen(),
-      },
+      // routes: {
+      //   // '/': (context) => NavbarScreen(),
+      //   '/productsScreen': (context) => ProductsScreen(),
+      //   '/productDetails': (context) => ProductDetailsScreen(),
+      //   '/addProduct': (context) => AddProductScreen(),
+      // },
     );
   }
 }

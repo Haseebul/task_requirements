@@ -31,25 +31,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       converter: (store) => ProductDetailsViewModel.fromStore(store),
       builder: (context, vm) {
         return Scaffold(
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: vm.currentIndex,
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Product Screen',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.description),
-                label: 'More',
-              ),
-            ],
-            onTap: (index) {
-              vm.dispatch(UpdateNavbarAction(newIndex: index));
-              Navigator.pop(context);
-            },
-            selectedItemColor: Colors.deepPurple,
-            unselectedItemColor: Colors.grey,
-          ),
           body: Column(
             children: [
               AppBar(
@@ -170,19 +151,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
 class ProductDetailsViewModel {
   final Product product;
-  final int currentIndex;
   final Function(ReduxAction<AppState> action) dispatch;
 
   ProductDetailsViewModel({
     required this.product,
     required this.dispatch,
-    required this.currentIndex,
   });
 
   factory ProductDetailsViewModel.fromStore(Store<AppState> store) {
     return ProductDetailsViewModel(
       product: store.state.productDetailsState.product,
-      currentIndex: store.state.navbarState.currentIndex,
       dispatch: (ReduxAction<AppState> action) {
         store.dispatch(action);
       },
